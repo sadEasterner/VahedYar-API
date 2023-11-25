@@ -16,7 +16,7 @@
 
 ###
 
-<p align="left">This project is a restFull API for VahedYar project to handle user authentication and authorization build with nodeJS / express / MongoDB</p>
+<p align="left">This project is a restFull API for VahedYar project to handle user authentication and authorization using:  nodeJS / express / MongoDB</p>
 
 ###
 
