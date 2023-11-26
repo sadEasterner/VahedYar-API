@@ -7,10 +7,10 @@ const signup = async (req, res) => {
     const {username, password, email, group, eduLevel} = req.body;
     
     //validation
-    if(!username) return res.status(400).json({'message': 'username is required'});
-    if(!password) return res.status(400).json({'message': 'password is required'});
+    if(!username) return res.status(400).json({error: 'Username is required'});
+    if(!password) return res.status(400).json({error: 'Password is required'});
     const duplicate = await User.findOne({username}).exec();
-    if(duplicate) return res.sendStatus(409);
+    if(duplicate) return res.status(409).json({ error: 'User already exists', customeStatus: "1002" });
 
     try{
         const newUser = new User();
@@ -48,12 +48,12 @@ const login = async (req, res) => {
     const {username, password} = req.body;
     
     //validation
-    if(!username) return res.status(400).json({'message': 'username is required'});
-    if(!password) return res.status(400).json({'message': 'password is required'});
+    if(!username) return res.status(400).json({error: 'username is required'});
+    if(!password) return res.status(400).json({error: 'password is required'});
     const foundUser = await User.findOne({username}).exec();
-    if(!foundUser) return res.sendStatus(401); //Unauthorized
-    if(foundUser.UserStat.Banned) return res.status(403).json({'message': 'Your account has been banned!'});
-    if(foundUser.UserStat.Deleted) return res.status(403).json({'message': 'Your account has been deleted!'});
+    if(!foundUser) return res.status(401).json({error: "Unauthorized", customeStatus: "1003"});
+    if(foundUser.UserStat.Banned) return res.status(403).json({error: 'Your account has been banned!', customeStatus: "1005"});
+    if(foundUser.UserStat.Deleted) return res.status(403).json({error: 'Your account has been deleted!', customeStatus: "1006"});
     
     const pwdMatch = password === foundUser.password ? true : false;
     if(pwdMatch){
@@ -74,7 +74,7 @@ const login = async (req, res) => {
         foundUser.refreshToken = refreshToken;
         const result = await foundUser.save();
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
-        res.json({accessToken});
+        res.status(201).json(accessToken);
     } else{
         res.sendStatus(401);
     }
